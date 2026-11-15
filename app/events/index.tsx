@@ -3,19 +3,12 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, Vi
 import { router } from 'expo-router';
 import EventRow from '../../src/components/EventRow';
 import { useEvents } from '../../src/hooks/useEvents';
+import { useSavedIds } from '../../src/hooks/useSavedIds';
 
 export default function EventsScreen() {
-  const [savedIds, setSavedIds] = useState<number[]>([]);
   const [query, setQuery] = useState('');
+  const { savedIds, toggleSaved } = useSavedIds();
   const { data, isPending, isError, error, refetch, isRefetching } = useEvents();
-
-  function toggleSaved(id: number) {
-    if (savedIds.includes(id)) {
-      setSavedIds(savedIds.filter((savedId) => savedId !== id));
-    } else {
-      setSavedIds([...savedIds, id]);
-    }
-  }
 
   if (isPending) {
     return (
