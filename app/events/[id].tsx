@@ -1,10 +1,33 @@
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { events } from '../../src/data/events';
+import { useEvents } from '../../src/hooks/useEvents';
 
 export default function EventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const event = events.find((item) => item.id === Number(id));
+  const { data, isPending, isError, error, refetch } = useEvents();
+
+  if (isPending) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator />
+        <Text>Loading events</Text>
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.title}>Could not load events</Text>
+        <Text>{error.message}</Text>
+        <Pressable onPress={() => refetch()} style={styles.button}>
+          <Text style={styles.buttonText}>Try again</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const event = data.find((item) => item.id === Number(id));
 
   if (!event) {
     return (
@@ -33,8 +56,27 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: '#fff',
   },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  button: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    marginTop: 8,
+    borderRadius: 8,
+    backgroundColor: '#1d4ed8',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
